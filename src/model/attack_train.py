@@ -42,6 +42,7 @@ class FGSM(Adversarial):
         for name, param in self.model.named_parameters():
             if param.requires_grad and emb_name in name:
                 self.emb_backup[name] = param.data.clone()
+                # FGSM对抗扰动
                 r_hat = self.eps * param.grad.sign()
                 param.data.add_(r_hat)
 
@@ -59,6 +60,7 @@ class FGM(object):
                 self.backup[name] = param.data.clone()
                 norm = torch.norm(param.grad)
                 if norm and not torch.isnan(norm):
+                    # FGM对抗扰动
                     r_at = self.eps * param.grad / norm
                     param.data.add_(r_at)
 
@@ -83,8 +85,10 @@ class PGD(Adversarial):
                     self.emb_backup[name] = param.data.clone()
                 norm = torch.norm(param.grad)
                 if norm and not torch.isnan(norm):
+                    # FGD对抗扰动
                     r_at = self.alpha * param.grad / norm
                     param.data.add_(r_at)
+                    # 约束
                     param.data = self.project(name, param.data)
 
     def project(self, emb_name, param_data):
@@ -111,11 +115,6 @@ class FreeLB(Adversarial):
 
     def lookup_emb(self, input_ids, emb_name='embedding'):
         return self.model.embedding(input_ids)
-
-    def attack(self, delta, embeds_init, emb_name='embedding'):
-        delta.requires_grad_()
-        input_embeds = delta + embeds_init
-        self.model()
 
 
 class Smart(Adversarial):
@@ -146,10 +145,3 @@ class Smart(Adversarial):
             return (p * (rp - ry) * 2).sum() / bs
         else:
             return (p * (rp - ry) * 2).sum()
-
-
-
-
-
-
-

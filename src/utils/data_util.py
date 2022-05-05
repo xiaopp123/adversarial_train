@@ -35,6 +35,12 @@ def build_vocab(file_path, vocab_size, min_freq):
 
 
 def build_dataset(file_path, vocab_dict, max_seq_length):
+    """
+    :param file_path:
+    :param vocab_dict:
+    :param max_seq_length:
+    :return: [[text, label, seq_length]]
+    """
     text_list = []
     label_list = []
     seq_length_list = []
